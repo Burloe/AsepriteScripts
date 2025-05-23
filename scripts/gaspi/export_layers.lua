@@ -19,7 +19,6 @@ if err ~= 0 then return err end
 -- Variable to keep track of the number of layers exported.
 local n_layers = 0
 
-
 -- Function to calculate the bounding box of the non-transparent pixels in a layer
 local function calculateBoundingBox(layer)
     local minX, minY, maxX, maxY = nil, nil, nil, nil
@@ -46,6 +45,11 @@ end
 -- Exports every layer individually.
 local function exportLayers(sprite, root_layer, filename, group_sep, data)
     for _, layer in ipairs(root_layer.layers) do
+        local prefix = data.exclude_prefix or "_"
+        -- Skip layer with specified prefix and prefix is not empty
+        if data.exclude_prefix and prefix ~= "" and string.sub(layer.name, 1, #prefix) == prefix then
+            goto continue
+        end
         local filename = filename
         if layer.isGroup then
             -- Recursive for groups.
@@ -121,6 +125,7 @@ local function exportLayers(sprite, root_layer, filename, group_sep, data)
             layer.isVisible = false
             n_layers = n_layers + 1
         end
+        ::continue::
     end
 end
 
@@ -155,7 +160,6 @@ dlg:check{
     label = "Export as spritesheet:",
     selected = false,
     onclick = function()
-        -- Hide these options when spritesheet is checked.
         dlg:modify{
             id = "trim",
             visible = not dlg.data.spritesheet
@@ -170,13 +174,13 @@ dlg:check{
             visible = dlg.data.spritesheet
         }
         dlg:modify{
-            id = "mergeDuplicates",
-            visible = dlg.data.spritesheet
-        }
-        dlg:modify{
-            id = "tagsplit",
-            visible = dlg.data.spritesheet
-        }
+         id = "mergeDuplicates",
+         visible = dlg.data.spritesheet
+      }
+      dlg:modify{
+         id = "tagsplit",
+         visible = dlg.data.spritesheet
+      }
     end
 }
 dlg:check{
@@ -225,6 +229,23 @@ dlg:check{ -- Spritesheet export only option
     id = "mergeDuplicates",
     label = "  Merge duplicates:",
     selected = false,
+    visible = false
+}
+dlg:check{
+    id = "exclude_prefix",
+    label = "Exclude layers with prefix",
+    selected = false,
+    onclick = function()
+        dlg:modify{
+            id = "exclude_prefix",
+            visible = dlg.data.exclude_prefix
+        }
+    end
+}
+dlg:entry{
+    id = "exclude_prefix",
+    label = "  Prefix:",
+    text = "_",
     visible = false
 }
 dlg:check{id = "save", label = "Save sprite:", selected = false}
