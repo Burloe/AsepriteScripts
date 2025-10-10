@@ -1,3 +1,5 @@
+# Personalized version of the script for my projects - Burloe
+
 # Gaspi's Aseprite Scripts
 
 Welcome to my collection of Aseprite Scripts. They all aim to save you time
