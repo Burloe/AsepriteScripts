@@ -19,7 +19,6 @@ if err ~= 0 then return err end
 -- Variable to keep track of the number of layers exported.
 local n_layers = 0
 
-
 -- Function to calculate the bounding box of the non-transparent pixels in a layer
 local function calculateBoundingBox(layer)
     local minX, minY, maxX, maxY = nil, nil, nil, nil
@@ -130,6 +129,95 @@ local function exportLayers(sprite, root_layer, filename, group_sep, data)
     end
 end
 
+-- Exports every layer individually using preset settings.
+local function exportWithPreset(sprite, root_layer, preset, filename, group_sep, data)
+    for _, layer in ipairs(root_layer.layers) do
+        local prefix = data.exclusion_prefix or "_"
+        -- Skip layer with specified prefix and prefix is not empty
+        if data.exclude_prefix and prefix ~= "" and string.sub(layer.name, 1, #prefix) == prefix then
+            goto continue
+        end
+        local filename = filename
+        if layer.isGroup then
+            -- Recursive for groups.
+            local previousVisibility = layer.isVisible
+            layer.isVisible = true
+            filename = filename:gsub("{layergroups}",
+                                     layer.name .. group_sep .. "{layergroups}")
+            exportLayers(sprite, layer, filename, group_sep, data)
+            layer.isVisible = previousVisibility
+        else
+            -- Individual layer. Export it.
+            layer.isVisible = true
+            filename = filename:gsub("{layergroups}", "")
+            filename = filename:gsub("{layername}", layer.name)
+            os.execute("mkdir \"" .. Dirname(filename) .. "\"")
+            if data.spritesheet then
+                local sheettype=SpriteSheetType.HORIZONTAL
+                if (data.tagsplit == "To Rows") then
+                    sheettype=SpriteSheetType.ROWS
+                elseif (data.tagsplit == "To Columns") then
+                    sheettype=SpriteSheetType.COLUMNS
+                end
+                app.command.ExportSpriteSheet{
+                    ui=false,
+                    askOverwrite=false,
+                    type=sheettype,
+                    columns=0,
+                    rows=0,
+                    width=0,
+                    height=0,
+                    bestFit=false,
+                    textureFilename=filename,
+                    dataFilename="",
+                    dataFormat=SpriteSheetDataFormat.JSON_HASH,
+                    borderPadding=0,
+                    shapePadding=0,
+                    innerPadding=0,
+                    trimSprite=data.trimSprite,
+                    trim=data.trimCells,
+                    trimByGrid=data.trimByGrid,
+                    mergeDuplicates=data.mergeDuplicates,
+                    extrude=false,
+                    openGenerated=false,
+                    layer="",
+                    tag="",
+                    splitLayers=false,
+                    splitTags=(data.tagsplit ~= "No"),
+                    listLayers=layer,
+                    listTags=true,
+                    listSlices=true,
+                }
+            elseif data.trim then -- Trim the layer
+                local boundingRect = calculateBoundingBox(layer)
+                -- make a selection on the active layer
+                app.activeLayer = layer;
+                sprite.selection = Selection(boundingRect);
+                
+                -- create a new sprite from that selection
+                app.command.NewSpriteFromSelection()
+                
+                -- save it as png
+                app.command.SaveFile {
+                    ui=false,
+                    filename=filename
+                }
+                app.command.CloseFile()
+                
+                app.activeSprite = layer.sprite  -- Set the active sprite to the current layer's sprite
+                sprite.selection = Selection();
+            else
+                sprite:saveCopyAs(filename)
+            end
+            layer.isVisible = false
+            n_layers = n_layers + 1
+        end
+        ::continue::
+    end
+end
+
+
+
 -- Open main dialog.
 local dlg = Dialog("Export layers")
 dlg:file{
@@ -137,6 +225,12 @@ dlg:file{
     label = "Output directory:",
     filename = Sprite.filename,
     open = false
+}
+dlg:combobox{
+    id = "presets",
+    label = 'Presets',
+    option = 'None',
+    options = {'None', 'ToolSprites'}
 }
 dlg:entry{
     id = "filename",
@@ -153,15 +247,14 @@ dlg:combobox{
     id = 'group_sep',
     label = 'Group separator:',
     option = Sep,
-    options = {Sep, '-', '_'}
+    options = {Sep, '-', '_', " "}
 }
 dlg:slider{id = 'scale', label = 'Export Scale:', min = 1, max = 10, value = 1}
 dlg:check{
     id = "spritesheet",
     label = "Export as spritesheet:",
-    selected = false,
+    selected = true,
     onclick = function()
-        -- Hide these options when spritesheet is checked.
         dlg:modify{
             id = "trim",
             visible = not dlg.data.spritesheet
@@ -176,13 +269,13 @@ dlg:check{
             visible = dlg.data.spritesheet
         }
         dlg:modify{
-            id = "mergeDuplicates",
-            visible = dlg.data.spritesheet
-        }
-        dlg:modify{
-            id = "tagsplit",
-            visible = dlg.data.spritesheet
-        }
+         id = "mergeDuplicates",
+         visible = dlg.data.spritesheet
+      }
+      dlg:modify{
+         id = "tagsplit",
+         visible = dlg.data.spritesheet
+      }
     end
 }
 dlg:check{
@@ -236,7 +329,7 @@ dlg:check{ -- Spritesheet export only option
 dlg:check{
     id = "exclude_prefix",
     label = "Exclude layers with prefix",
-    selected = false,
+    selected = true,
     onclick = function()
         dlg:modify{
             id = "exclusion_prefix",
@@ -248,9 +341,9 @@ dlg:entry{
     id = "exclusion_prefix",
     label = "  Prefix:",
     text = "_",
-    visible = false
+    visible = true
 }
-dlg:check{id = "save", label = "Save sprite:", selected = false}
+dlg:check{id = "save", label = "Save sprite:", selected = true}
 dlg:button{id = "ok", text = "Export"}
 dlg:button{id = "cancel", text = "Cancel"}
 dlg:show()
@@ -275,7 +368,13 @@ filename = filename:gsub("{groupseparator}", group_sep)
 -- Finally, perform everything.
 Sprite:resize(Sprite.width * dlg.data.scale, Sprite.height * dlg.data.scale)
 local layers_visibility_data = HideLayers(Sprite)
-exportLayers(Sprite, Sprite, output_path .. filename, group_sep, dlg.data)
+
+if preset == 'None':
+    exportLayers(Sprite, Sprite, output_path .. filename, group_sep, dlg.data)
+else:
+    exportWithPreset(Sprite, Sprite, preset, output_path .. filename, group_sep, dlg.data)
+
+-- exportLayers(Sprite, Sprite, output_path .. filename, group_sep, dlg.data)
 RestoreLayersVisibility(Sprite, layers_visibility_data)
 Sprite:resize(Sprite.width / dlg.data.scale, Sprite.height / dlg.data.scale)
 
