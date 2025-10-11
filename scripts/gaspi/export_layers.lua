@@ -6,7 +6,11 @@ A script to save all different layers in different files.
     * Exclusion Prefix - Does not export layers with a designated prefix as layer name. [Added as public PR]
     * Space as Group Seperator - Allows Space to be used as group seperator.
     * Settings Presets - Combobox with preset for specific files:
-        * ToolSprites - a) Uses reversed layername and layergroup as filename, b) Space as group seperator, c) Export as Spritesheet turned off, d) '_' exclusion prefix.
+        * ToolSprites: 
+            * Uses reversed layername and layergroup as filename.
+            * Space as group seperator.
+            * Export as Spritesheet turned off.
+            * '_' exclusion prefix.
         * NYI ItemIcons
 
 Made by Gaspi.
