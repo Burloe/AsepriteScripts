@@ -43,6 +43,19 @@ local function calculateBoundingBox(layer)
     return Rectangle(minX, minY, maxX - minX + 1, maxY - minY + 1)
 end
 
+-- Utility: escape a string for Lua patterns
+local function escapePattern(s)
+    return s:gsub("([^%w])", "%%%1")
+end
+
+-- Remove trailing group separator immediately before the extension (e.g. "Name " + "." -> "Name.")
+local function removeSepBeforeExtension(name, sep)
+    if not sep or sep == "" then return name end
+    local esc = escapePattern(sep)
+    -- Replace occurrences of sep followed by a dot with just a dot
+    return name:gsub(esc .. "%.", ".")
+end
+
 -- Exports every layer individually.
 local function exportLayers(sprite, root_layer, filename, group_sep, data)
     for _, layer in ipairs(root_layer.layers) do
@@ -65,6 +78,7 @@ local function exportLayers(sprite, root_layer, filename, group_sep, data)
             layer.isVisible = true
             filename = filename:gsub("{layergroups}", "")
             filename = filename:gsub("{layername}", layer.name)
+            filename = removeSepBeforeExtension(filename, group_sep)
             os.execute("mkdir \"" .. Dirname(filename) .. "\"")
             if data.spritesheet then
                 local sheettype=SpriteSheetType.HORIZONTAL
@@ -152,9 +166,8 @@ local function exportWithPreset(sprite, root_layer, preset, filename, group_sep,
             -- Individual layer. Export it.
             layer.isVisible = true
             fname = fname:gsub("{layergroups}", "")
-            -- replace placeholders in the passed filename
             fname = fname:gsub("{layername}", layer.name)
-
+            fname = removeSepBeforeExtension(fname, group_sep)
             os.execute("mkdir \"" .. Dirname(fname) .. "\"")
 
             if data.spritesheet then
