@@ -12,6 +12,7 @@ Further Contributors:
     - Demonkiller8973
 --]]
 
+
 -- Import main.
 local err = dofile("main.lua")
 if err ~= 0 then return err end
@@ -130,43 +131,38 @@ local function exportLayers(sprite, root_layer, filename, group_sep, data)
 end
 
 -- Exports every layer individually using preset settings.
-local function exportWithPreset(sprite, root_layer, preset, filename, group_sep, filename_format, data)
+local function exportWithPreset(sprite, root_layer, preset, filename, group_sep, data)
     for _, layer in ipairs(root_layer.layers) do
         local prefix = data.exclusion_prefix or "_"
         -- Skip layer with specified prefix and prefix is not empty
         if data.exclude_prefix and prefix ~= "" and string.sub(layer.name, 1, #prefix) == prefix then
             goto continue
         end
-        local filename = filename
+
+        local fname = filename
         if layer.isGroup then
             -- Recursive for groups.
             local previousVisibility = layer.isVisible
             layer.isVisible = true
-            filename = filename:gsub("{layergroups}",
-                                     layer.name .. group_sep .. "{layergroups}")
-            -- recurse with the same preset and filename_format
-            exportWithPreset(sprite, layer, preset, filename, group_sep, filename_format, data)
+            fname = fname:gsub("{layergroups}", layer.name .. group_sep .. "{layergroups}")
+            -- recurse with the same preset and data
+            exportWithPreset(sprite, layer, preset, fname, group_sep, data)
             layer.isVisible = previousVisibility
         else
             -- Individual layer. Export it.
             layer.isVisible = true
-            filename = filename:gsub("{layergroups}", "")
-            -- allow filename_format to override the passed filename if provided
-            if filename_format and filename_format ~= "" then
-                -- filename already contains output path + format extension from caller
-                -- replace placeholders in the passed filename
-                filename = filename:gsub("{layername}", layer.name)
-                filename = filename:gsub("{layergroups}", "")
-            else
-                filename = filename:gsub("{layername}", layer.name)
-            end
-            os.execute("mkdir \"" .. Dirname(filename) .. "\"")
+            fname = fname:gsub("{layergroups}", "")
+            -- replace placeholders in the passed filename
+            fname = fname:gsub("{layername}", layer.name)
+
+            os.execute("mkdir \"" .. Dirname(fname) .. "\"")
+
             if data.spritesheet then
-                local sheettype=SpriteSheetType.HORIZONTAL
+                local sheettype = SpriteSheetType.HORIZONTAL
                 if (data.tagsplit == "To Rows") then
-                    sheettype=SpriteSheetType.ROWS
+                    sheettype = SpriteSheetType.ROWS
                 elseif (data.tagsplit == "To Columns") then
-                    sheettype=SpriteSheetType.COLUMNS
+                    sheettype = SpriteSheetType.COLUMNS
                 end
                 app.command.ExportSpriteSheet{
                     ui=false,
@@ -177,7 +173,7 @@ local function exportWithPreset(sprite, root_layer, preset, filename, group_sep,
                     width=0,
                     height=0,
                     bestFit=false,
-                    textureFilename=filename,
+                    textureFilename=fname,
                     dataFilename="",
                     dataFormat=SpriteSheetDataFormat.JSON_HASH,
                     borderPadding=0,
@@ -204,25 +200,27 @@ local function exportWithPreset(sprite, root_layer, preset, filename, group_sep,
                     layer.isVisible = false
                     goto continue
                 end
+
                 -- make a selection on the active layer
-                app.activeLayer = layer;
-                sprite.selection = Selection(boundingRect);
-                
+                app.activeLayer = layer
+                sprite.selection = Selection(boundingRect)
+
                 -- create a new sprite from that selection
                 app.command.NewSpriteFromSelection()
-                
+
                 -- save it as png
                 app.command.SaveFile {
                     ui=false,
-                    filename=filename
+                    filename=fname
                 }
                 app.command.CloseFile()
-                
-                app.activeSprite = layer.sprite  -- Set the active sprite to the current layer's sprite
-                sprite.selection = Selection();
+
+                app.activeSprite = layer.sprite  -- restore active sprite context
+                sprite.selection = Selection()
             else
-                sprite:saveCopyAs(filename)
+                sprite:saveCopyAs(fname)
             end
+
             layer.isVisible = false
             n_layers = n_layers + 1
         end
@@ -383,21 +381,18 @@ filename = filename:gsub("{groupseparator}", group_sep)
 Sprite:resize(Sprite.width * dlg.data.scale, Sprite.height * dlg.data.scale)
 local layers_visibility_data = HideLayers(Sprite)
 
--- Use the correct dialog field name (id = "presets") and proper Lua syntax.
+-- Preset settings handling.
 if dlg.data.presets == 'None' then
     exportLayers(Sprite, Sprite, output_path .. filename, group_sep, dlg.data)
 elseif dlg.data.presets == "ToolSprites" then
-    -- Create a shallow copy of dlg.data and override preset values
     local preset_data = {}
     for k,v in pairs(dlg.data) do preset_data[k] = v end
     preset_data.spritesheet = false
-    -- preset filename format and group separator as requested
     local preset_filename = output_path .. "{layername} {layergroups}." .. dlg.data.format
-    exportWithPreset(Sprite, Sprite, dlg.data.presets, preset_filename, " ", "{layername} {layergroups}", preset_data)
+    exportWithPreset(Sprite, Sprite, dlg.data.presets, preset_filename, " ", preset_data)
 else
     exportLayers(Sprite, Sprite, output_path .. filename, group_sep, dlg.data)
 end
--- exportLayers(Sprite, Sprite, output_path .. filename, group_sep, dlg.data)
 
 RestoreLayersVisibility(Sprite, layers_visibility_data)
 Sprite:resize(Sprite.width / dlg.data.scale, Sprite.height / dlg.data.scale)
