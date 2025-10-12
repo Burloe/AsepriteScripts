@@ -6,17 +6,10 @@ Customized version for my project in `scripts/burloe`.
 ### Export Layers **[Added functionality]**
 - [Exclude layers with prefix](https://github.com/PKGaspi/AsepriteScripts/pull/22) - *Ignores layers with a designated prefix in layer name.*<br>
 - Space as Group Seperator - *Allows `Space` to be used as group seperator.*<br>
-- Settings Presets - *Combobox with preset for item icons:*<br>
-    - ToolSprites: <br>
-        - Uses reversed layername and layergroup as filename.<br>
-        - Space as group seperator.<br>
-        - Export as Spritesheet turned off.<br>
-        - `_` exclusion prefix.<br>
         
 ### Export Base Combination **[New]** 
-*Example, if you have a letter sprite and different text/sprites you want on top. You select the `letter` as the base, then the script will export every other layer in the group with the letter under it*:
-<img width="901" height="577" alt="asdf" src="https://github.com/user-attachments/assets/4046a07d-414e-4569-a23b-4cbc8c469ff0" /> <br>
-
+*Exports each layer in a group with a selected base layer.*
+<img width="901" height="577" alt="asdasd" src="https://github.com/user-attachments/assets/2f6de74c-eac6-460c-b786-85782a5b6985" /><br>
 
 
             
