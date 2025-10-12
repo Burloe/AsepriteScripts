@@ -262,12 +262,6 @@ dlg:file{
     filename = Sprite.filename,
     open = false
 }
-dlg:combobox{
-    id = "presets",
-    label = 'Presets',
-    option = 'None',
-    options = {'None', 'ToolSprites'}
-}
 dlg:entry{
     id = "filename",
     label = "File name format:",
@@ -309,9 +303,9 @@ dlg:check{
          visible = dlg.data.spritesheet
       }
       dlg:modify{
-         id = "tagsplit",
+          id = "tagsplit",
          visible = dlg.data.spritesheet
-      }
+        }
     end
 }
 dlg:check{
@@ -357,10 +351,10 @@ dlg:combobox{ -- Spritesheet export only option
     options = {'No', 'To Rows', 'To Columns'}
 }
 dlg:check{ -- Spritesheet export only option
-    id = "mergeDuplicates",
-    label = "  Merge duplicates:",
-    selected = false,
-    visible = false
+id = "mergeDuplicates",
+label = "  Merge duplicates:",
+selected = false,
+visible = false
 }
 dlg:check{
     id = "exclude_prefix",
@@ -373,12 +367,160 @@ dlg:check{
         }
     end
 }
-dlg:entry{
+dlg:entry{ -- Visible if 'exclude_prefix' is selected
     id = "exclusion_prefix",
     label = "  Prefix:",
     text = "_",
     visible = true
 }
+dlg.separator{}
+dlg:combobox{
+    id = "presets",
+    label = 'Presets',
+    option = 'None',
+    options = { 'None', 'Tools', 'Armors', 'Weapons', 'Crops', 'Seeds', 'Workbenches', 'Buildables', 'Materials', 'Consumables', 'Keys', 'Collectibles', 'Fish' },
+    onchange = function()
+        local p = dlg.data.presets
+        if p == "Tools" then
+            dlg.modify{ id = "directory", filename = "C:\\users\\Tomni\\OneDrive\\1. Godot\\eldergrowth\\Assets\\Items\\item_Icons\\tools" }
+            dlg.modify{ id = "filename", "{layername}{layername}" }
+            dlg.modify{ id = "format", option = "png" }
+            dlg.modify{ id = "group_sep", option = " " }
+            dlg.modify{ id = "scale", value = 1 }
+            dlg.modify{ id = "spritesheet", selected = false }
+            dlg.modify{ id = "trim", selected = false }
+            dlg.modify{ id = "exclude_prefix", selected = true }
+            dlg.modify{ id = "exclusion_prefix", text = "_", visible = true }
+            dlg.modify{ id = "save", selected = true }
+            
+        elseif p == "Armors" then
+            dlg.modify{ id = "directory", filename = "C:\\users\\Tomni\\OneDrive\\1. Godot\\eldergrowth\\Assets\\Items\\item_Icons\\armors" }
+            dlg.modify{ id = "filename", "{layername}" }
+            dlg.modify{ id = "format", option = "png" }
+            dlg.modify{ id = "group_sep", option = " " }
+            dlg.modify{ id = "scale", value = 1 }
+            dlg.modify{ id = "spritesheet", selected = false }
+            dlg.modify{ id = "trim", selected = false }
+            dlg.modify{ id = "exclude_prefix", selected = true }
+            dlg.modify{ id = "exclusion_prefix", text = "_", visible = true }
+            dlg.modify{ id = "save", selected = true }
+        elseif p == "Weapons" then
+            dlg.modify{ id = "directory", filename = "C:\\users\\Tomni\\OneDrive\\1. Godot\\eldergrowth\\Assets\\Items\\item_Icons\\weapons" }
+            dlg.modify{ id = "filename", "{layername}{layername}" }
+            dlg.modify{ id = "format", option = "png" }
+            dlg.modify{ id = "group_sep", option = " " }
+            dlg.modify{ id = "scale", value = 1 }
+            dlg.modify{ id = "spritesheet", selected = false }
+            dlg.modify{ id = "trim", selected = false }
+            dlg.modify{ id = "exclude_prefix", selected = true }
+            dlg.modify{ id = "exclusion_prefix", text = "_", visible = true }
+            dlg.modify{ id = "save", selected = true }
+        elseif p == "Crops" then
+            dlg.modify{ id = "directory", filename = "C:\\users\\Tomni\\OneDrive\\1. Godot\\eldergrowth\\Assets\\Items\\item_Icons\\crops" }
+            dlg.modify{ id = "filename", "{layername}{layername}" }
+            dlg.modify{ id = "format", option = "png" }
+            dlg.modify{ id = "group_sep", option = " " }
+            dlg.modify{ id = "scale", value = 1 }
+            dlg.modify{ id = "spritesheet", selected = false }
+            dlg.modify{ id = "trim", selected = false }
+            dlg.modify{ id = "exclude_prefix", selected = true }
+            dlg.modify{ id = "exclusion_prefix", text = "_", visible = true }
+            dlg.modify{ id = "save", selected = true }
+        elseif p == "Seeds" then
+            dlg.modify{ id = "directory", filename = "C:\\users\\Tomni\\OneDrive\\1. Godot\\eldergrowth\\Assets\\Items\\item_Icons\\seeds" }
+            dlg.modify{ id = "filename", "{layername}{layername}" }
+            dlg.modify{ id = "format", option = "png" }
+            dlg.modify{ id = "group_sep", option = " " }
+            dlg.modify{ id = "scale", value = 1 }
+            dlg.modify{ id = "spritesheet", selected = false }
+            dlg.modify{ id = "trim", selected = false }
+            dlg.modify{ id = "exclude_prefix", selected = true }
+            dlg.modify{ id = "exclusion_prefix", text = "_", visible = true }
+            dlg.modify{ id = "save", selected = true }
+        elseif p == "Workbenches" then
+            dlg.modify{ id = "directory", filename = "C:\\users\\Tomni\\OneDrive\\1. Godot\\eldergrowth\\Assets\\Items\\item_Icons\\workbenches" }
+            dlg.modify{ id = "filename", "{layername}{layername}" }
+            dlg.modify{ id = "format", option = "png" }
+            dlg.modify{ id = "group_sep", option = " " }
+            dlg.modify{ id = "scale", value = 1 }
+            dlg.modify{ id = "spritesheet", selected = false }
+            dlg.modify{ id = "trim", selected = false }
+            dlg.modify{ id = "exclude_prefix", selected = true }
+            dlg.modify{ id = "exclusion_prefix", text = "_", visible = true }
+            dlg.modify{ id = "save", selected = true }
+        elseif p == "Buildables" then
+            dlg.modify{ id = "directory", filename = "C:\\users\\Tomni\\OneDrive\\1. Godot\\eldergrowth\\Assets\\Items\\item_Icons\\buildables" }
+            dlg.modify{ id = "filename", "{layername}{layername}" }
+            dlg.modify{ id = "format", option = "png" }
+            dlg.modify{ id = "group_sep", option = " " }
+            dlg.modify{ id = "scale", value = 1 }
+            dlg.modify{ id = "spritesheet", selected = false }
+            dlg.modify{ id = "trim", selected = false }
+            dlg.modify{ id = "exclude_prefix", selected = true }
+            dlg.modify{ id = "exclusion_prefix", text = "_", visible = true }
+            dlg.modify{ id = "save", selected = true }
+        elseif p == "Materials" then
+            dlg.modify{ id = "directory", filename = "C:\\users\\Tomni\\OneDrive\\1. Godot\\eldergrowth\\Assets\\Items\\item_Icons\\materials" }
+            dlg.modify{ id = "filename", "{layername}{layername}" }
+            dlg.modify{ id = "format", option = "png" }
+            dlg.modify{ id = "group_sep", option = " " }
+            dlg.modify{ id = "scale", value = 1 }
+            dlg.modify{ id = "spritesheet", selected = false }
+            dlg.modify{ id = "trim", selected = false }
+            dlg.modify{ id = "exclude_prefix", selected = true }
+            dlg.modify{ id = "exclusion_prefix", text = "_", visible = true }
+            dlg.modify{ id = "save", selected = true }
+        elseif p == "Consumables" then
+            dlg.modify{ id = "directory", filename = "C:\\users\\Tomni\\OneDrive\\1. Godot\\eldergrowth\\Assets\\Items\\item_Icons\\consumables" }
+            dlg.modify{ id = "filename", "{layername}{layername}" }
+            dlg.modify{ id = "format", option = "png" }
+            dlg.modify{ id = "group_sep", option = " " }
+            dlg.modify{ id = "scale", value = 1 }
+            dlg.modify{ id = "spritesheet", selected = false }
+            dlg.modify{ id = "trim", selected = false }
+            dlg.modify{ id = "exclude_prefix", selected = true }
+            dlg.modify{ id = "exclusion_prefix", text = "_", visible = true }
+            dlg.modify{ id = "save", selected = true }
+        elseif p == "Keys"
+            dlg.modify{ id = "directory", filename = "C:\\users\\Tomni\\OneDrive\\1. Godot\\eldergrowth\\Assets\\Items\\item_Icons\\keys" }
+            dlg.modify{ id = "filename", "{layername}{layername}" }
+            dlg.modify{ id = "format", option = "png" }
+            dlg.modify{ id = "group_sep", option = " " }
+            dlg.modify{ id = "scale", value = 1 }
+            dlg.modify{ id = "spritesheet", selected = false }
+            dlg.modify{ id = "trim", selected = false }
+            dlg.modify{ id = "exclude_prefix", selected = true }
+            dlg.modify{ id = "exclusion_prefix", text = "_", visible = true }
+            dlg.modify{ id = "save", selected = true }
+        elseif p == "Collectibles" then
+            dlg.modify{ id = "directory", filename = "C:\\users\\Tomni\\OneDrive\\1. Godot\\eldergrowth\\Assets\\Items\\item_Icons\\collectibles" }
+            dlg.modify{ id = "filename", "{layername}{layername}" }
+            dlg.modify{ id = "format", option = "png" }
+            dlg.modify{ id = "group_sep", option = " " }
+            dlg.modify{ id = "scale", value = 1 }
+            dlg.modify{ id = "spritesheet", selected = false }
+            dlg.modify{ id = "trim", selected = false }
+            dlg.modify{ id = "exclude_prefix", selected = true }
+            dlg.modify{ id = "exclusion_prefix", text = "_", visible = true }
+            dlg.modify{ id = "save", selected = true }
+        elseif p == "Fish"
+            dlg.modify{ id = "directory", filename = "C:\\users\\Tomni\\OneDrive\\1. Godot\\eldergrowth\\Assets\\Items\\item_Icons\\fish" }
+            dlg.modify{ id = "filename", "{layername}{layername}" }
+            dlg.modify{ id = "format", option = "png" }
+            dlg.modify{ id = "group_sep", option = " " }
+            dlg.modify{ id = "scale", value = 1 }
+            dlg.modify{ id = "spritesheet", selected = false }
+            dlg.modify{ id = "trim", selected = false }
+            dlg.modify{ id = "exclude_prefix", selected = true }
+            dlg.modify{ id = "exclusion_prefix", text = "_", visible = true }
+            dlg.modify{ id = "save", selected = true }
+
+        else
+            -- None
+        end
+    end
+}
+dlg.separator{}
 dlg:check{id = "save", label = "Save sprite:", selected = true}
 dlg:button{id = "ok", text = "Export"}
 dlg:button{id = "cancel", text = "Cancel"}

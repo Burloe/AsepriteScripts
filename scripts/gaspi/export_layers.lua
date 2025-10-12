@@ -269,7 +269,7 @@ dlg:check{
         }
     end
 }
-dlg:entry{
+dlg:entry{ -- Visible if 'exclude_prefix' is selected
     id = "exclusion_prefix",
     label = "  Prefix:",
     text = "_",

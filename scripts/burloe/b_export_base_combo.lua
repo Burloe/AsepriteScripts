@@ -1,9 +1,23 @@
--- Exports each layer in a group combined with a chosen "base" layer.
--- Usage: For each top-level group, choose one layer as base. The script will
--- save one file per other layer in the same group with both base+layer visible.
+--[[
+Export Base Combination
+
+Description:
+Exports every layer in groups with a selected base layer.
+
+? Personal version of Gaspi's original script by Burloe. Specifically tailored for my personal projects. Added functionality:
+    * Settings Presets - Combobox with preset for specific files:
+        * Seeds: 
+            * Path: assets/items/seeds
+            * Output filename format: '{{layername}} Seeds'
+            * Format: .png
+            * Scale: 1
+            * Exclude layers: true _
+            * Ignore Empty Layer: true
+        * NYI ItemIcons
+-- ]]
 
 -- Import main helpers (Dirname, HideLayers, RestoreLayersVisibility, etc.)
-local err = dofile("main.lua")
+local err = dofile("b_main.lua")
 if err ~= 0 then return err end
 
 -- Collect top-level groups
@@ -45,8 +59,18 @@ dlg:combobox{
     options = {"png","gif","jpg"},
     option = "png"
 }
-dlg:slider{id = "scale", label = "Scale:", min = 1, max = 10, value = 1}
-dlg:check{id = "save", label = "Save Sprite", selected = false}
+dlg:slider{
+    id = "scale",
+    label = "Scale:",
+    min = 1,
+    max = 10,
+    value = 1
+}
+dlg:check{
+    id = "save", 
+    label = "Save Sprite", 
+    selected = false
+}
 
 -- Exclude layers option + prefix entry (entry hidden initially)
 dlg:check{
@@ -69,8 +93,44 @@ dlg:entry{
     text = "_",
     visible = false
 }
+dlg:check{
+    id = "ignore_empty", 
+    label = "Ignore empty layers", 
+    selected = true
+}
 
-dlg:check{id = "ignore_empty", label = "Ignore empty layers", selected = true}
+dlg:separator{}
+-- Add Presets combobox (placed after all other fields so onclick can modify them)
+dlg:combobox{
+    id = "presets",
+    label = "Preset:",
+    options = { "None", "Crops", "Seeds" },
+    option = "None",
+    onchange = function()
+        local p = dlg.data.presets
+        if p == "Seeds" then
+            dlg:modify{ id = "directory", filename = "C:\\users\\Tomni\\OneDrive\\1. Godot\\eldergrowth\\Assets\\Items\\item_Icons\\seeds" }
+            dlg:modify{ id = "out_filename", text = "{layername} Seeds" }
+            dlg:modify{ id = "format", option = "png" }
+            dlg:modify{ id = "scale", value = 1 }
+            dlg:modify{ id = "exclude", selected = true }
+            dlg:modify{ id = "prefix_info", visible = true }
+            dlg:modify{ id = "exclude_prefix", visible = true, text = "_" }
+            dlg:modify{ id = "ignore_empty", selected = true }
+        elseif p == "Crops" then
+            dlg:modify{ id = "directory", filename = "C:\\users\\Tomni\\OneDrive\\1. Godot\\eldergrowth\\Assets\\Items\\item_Icons\\crops" }
+            dlg:modify{ id = "out_filename", text = "{layername}" }
+            dlg:modify{ id = "format", option = "png" }
+            dlg:modify{ id = "scale", value = 1 }
+            dlg:modify{ id = "exclude", selected = true }
+            dlg:modify{ id = "prefix_info", visible = true }
+            dlg:modify{ id = "exclude_prefix", visible = true, text = "_" }
+            dlg:modify{ id = "ignore_empty", selected = true }
+        else
+            -- None: do not change fields
+        end
+    end
+}
 dlg:separator{}
 dlg:label{ id = "base_label", text = "Choose Base Layer" }
 
