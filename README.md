@@ -1,14 +1,23 @@
 # Burloe - Personalized version of the script for my projects
-Additions:<br>
-    - Exclusion Prefix - Does not export layers with a designated prefix as layer name. [Added as public PR]<br>
-    - Space as Group Seperator - Allows Space to be used as group seperator.<br>
-    - Settings Presets - Combobox with preset for specific files:<br>
-        - ToolSprites: <br>
-            - Uses reversed layername and layergroup as filename.<br>
-            - Space as group seperator.<br>
-            - Export as Spritesheet turned off.<br>
-            - '_' exclusion prefix.<br>
-            - New script that combines a base layer with the rest of the layers in a groupmj
+Forked from [PKGaspi - AsepriteScripts](https://github.com/PKGaspi/AsepriteScripts)
+
+Export Layers:
+- [Exclude layers with prefix](https://github.com/PKGaspi/AsepriteScripts/pull/22) - Ignores layers with a designated prefix as layer name.<br>
+- Space as Group Seperator - Allows Space to be used as group seperator.<br>
+- Settings Presets - Combobox with preset for specific files:<br>
+    - ToolSprites: <br>
+        - Uses reversed layername and layergroup as filename.<br>
+        - Space as group seperator.<br>
+        - Export as Spritesheet turned off.<br>
+        - '_' exclusion prefix.<br>
+Export Base Combination:
+- Exports every layer in a group with a base layer.<br>
+- Same base features (output filename format, format, scale, save sprite)
+- Exclude layers with prefix.<br>
+- Ignore empty layers.<br>
+<img width="901" height="577" alt="asdf" src="https://github.com/user-attachments/assets/4046a07d-414e-4569-a23b-4cbc8c469ff0" />
+
+
             
 
 # Gaspi's Aseprite Scripts
