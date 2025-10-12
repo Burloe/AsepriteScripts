@@ -481,7 +481,7 @@ dlg:combobox{
             dlg.modify{ id = "exclude_prefix", selected = true }
             dlg.modify{ id = "exclusion_prefix", text = "_", visible = true }
             dlg.modify{ id = "save", selected = true }
-        elseif p == "Keys"
+        elseif p == "Keys" then
             dlg.modify{ id = "directory", filename = "C:\\users\\Tomni\\OneDrive\\1. Godot\\eldergrowth\\Assets\\Items\\item_Icons\\keys" }
             dlg.modify{ id = "filename", "{layername}{layername}" }
             dlg.modify{ id = "format", option = "png" }
@@ -503,7 +503,7 @@ dlg:combobox{
             dlg.modify{ id = "exclude_prefix", selected = true }
             dlg.modify{ id = "exclusion_prefix", text = "_", visible = true }
             dlg.modify{ id = "save", selected = true }
-        elseif p == "Fish"
+        elseif p == "Fish" then
             dlg.modify{ id = "directory", filename = "C:\\users\\Tomni\\OneDrive\\1. Godot\\eldergrowth\\Assets\\Items\\item_Icons\\fish" }
             dlg.modify{ id = "filename", "{layername}{layername}" }
             dlg.modify{ id = "format", option = "png" }
