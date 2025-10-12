@@ -1,21 +1,22 @@
 # Burloe - Personalized version of the script for my projects
-Forked from [PKGaspi - AsepriteScripts](https://github.com/PKGaspi/AsepriteScripts)
+Forked from [PKGaspi - AsepriteScripts](https://github.com/PKGaspi/AsepriteScripts)<br>
+Agnostic version of the scripts are in `scripts/gaspi`.<br>
+Customized version for my project in `scripts/burloe`.
 
-Export Layers:
-- [Exclude layers with prefix](https://github.com/PKGaspi/AsepriteScripts/pull/22) - Ignores layers with a designated prefix as layer name.<br>
-- Space as Group Seperator - Allows Space to be used as group seperator.<br>
-- Settings Presets - Combobox with preset for specific files:<br>
+### Export Layers **[Added functionality]**
+- [Exclude layers with prefix](https://github.com/PKGaspi/AsepriteScripts/pull/22) - *Ignores layers with a designated prefix in layer name.*<br>
+- Space as Group Seperator - *Allows `Space` to be used as group seperator.*<br>
+- Settings Presets - *Combobox with preset for item icons:*<br>
     - ToolSprites: <br>
         - Uses reversed layername and layergroup as filename.<br>
         - Space as group seperator.<br>
         - Export as Spritesheet turned off.<br>
-        - '_' exclusion prefix.<br>
-Export Base Combination:
-- Exports every layer in a group with a base layer.<br>
-- Same base features (output filename format, format, scale, save sprite)
-- Exclude layers with prefix.<br>
-- Ignore empty layers.<br>
-<img width="901" height="577" alt="asdf" src="https://github.com/user-attachments/assets/4046a07d-414e-4569-a23b-4cbc8c469ff0" />
+        - `_` exclusion prefix.<br>
+        
+### Export Base Combination **[New]** 
+*Example, if you have a letter sprite and different text/sprites you want on top. You select the `letter` as the base, then the script will export every other layer in the group with the letter under it*:
+<img width="901" height="577" alt="asdf" src="https://github.com/user-attachments/assets/4046a07d-414e-4569-a23b-4cbc8c469ff0" /> <br>
+
 
 
             
