@@ -1,3 +1,4 @@
+---@diagnostic disable: undefined-global
 --[[
 Description:
 A script to save all different layers in different files.
@@ -24,7 +25,7 @@ Further Contributors:
 
 
 -- Import main.
-local err = dofile("main.lua")
+local err = dofile("b_main.lua")
 if err ~= 0 then return err end
 
 -- Variable to keep track of the number of layers exported.

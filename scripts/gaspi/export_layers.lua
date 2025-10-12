@@ -154,103 +154,6 @@ local function exportLayers(sprite, root_layer, filename, group_sep, data)
     end
 end
 
--- Exports every layer individually using preset settings.
-local function exportWithPreset(sprite, root_layer, preset, filename, group_sep, data)
-    for _, layer in ipairs(root_layer.layers) do
-        local prefix = data.exclusion_prefix or "_"
-        -- Skip layer with specified prefix and prefix is not empty
-        if data.exclude_prefix and prefix ~= "" and string.sub(layer.name, 1, #prefix) == prefix then
-            goto continue
-        end
-
-        local fname = filename
-        if layer.isGroup then
-            -- Recursive for groups.
-            local previousVisibility = layer.isVisible
-            layer.isVisible = true
-            fname = fname:gsub("{layergroups}", layer.name .. group_sep .. "{layergroups}")
-            -- recurse with the same preset and data
-            exportWithPreset(sprite, layer, preset, fname, group_sep, data)
-            layer.isVisible = previousVisibility
-        else
-            -- Individual layer. Export it.
-            layer.isVisible = true
-            fname = fname:gsub("{layergroups}", "")
-            fname = fname:gsub("{layername}", layer.name)
-            fname = removeSepBeforeExtension(fname, group_sep)
-            os.execute("mkdir \"" .. Dirname(fname) .. "\"")
-
-            if data.spritesheet then
-                local sheettype = SpriteSheetType.HORIZONTAL
-                if (data.tagsplit == "To Rows") then
-                    sheettype = SpriteSheetType.ROWS
-                elseif (data.tagsplit == "To Columns") then
-                    sheettype = SpriteSheetType.COLUMNS
-                end
-                app.command.ExportSpriteSheet{
-                    ui=false,
-                    askOverwrite=false,
-                    type=sheettype,
-                    columns=0,
-                    rows=0,
-                    width=0,
-                    height=0,
-                    bestFit=false,
-                    textureFilename=fname,
-                    dataFilename="",
-                    dataFormat=SpriteSheetDataFormat.JSON_HASH,
-                    borderPadding=0,
-                    shapePadding=0,
-                    innerPadding=0,
-                    trimSprite=data.trimSprite,
-                    trim=data.trimCells,
-                    trimByGrid=data.trimByGrid,
-                    mergeDuplicates=data.mergeDuplicates,
-                    extrude=false,
-                    openGenerated=false,
-                    layer="",
-                    tag="",
-                    splitLayers=false,
-                    splitTags=(data.tagsplit ~= "No"),
-                    listLayers=layer,
-                    listTags=true,
-                    listSlices=true,
-                }
-            elseif data.trim then -- Trim the layer
-                local boundingRect = calculateBoundingBox(layer)
-                if not boundingRect then
-                    -- nothing to export for this layer
-                    layer.isVisible = false
-                    goto continue
-                end
-
-                -- make a selection on the active layer
-                app.activeLayer = layer
-                sprite.selection = Selection(boundingRect)
-
-                -- create a new sprite from that selection
-                app.command.NewSpriteFromSelection()
-
-                -- save it as png
-                app.command.SaveFile {
-                    ui=false,
-                    filename=fname
-                }
-                app.command.CloseFile()
-
-                app.activeSprite = layer.sprite  -- restore active sprite context
-                sprite.selection = Selection()
-            else
-                sprite:saveCopyAs(fname)
-            end
-
-            layer.isVisible = false
-            n_layers = n_layers + 1
-        end
-        ::continue::
-    end
-end
-
 
 
 -- Open main dialog.
@@ -260,12 +163,6 @@ dlg:file{
     label = "Output directory:",
     filename = Sprite.filename,
     open = false
-}
-dlg:combobox{
-    id = "presets",
-    label = 'Presets',
-    option = 'None',
-    options = {'None', 'ToolSprites'}
 }
 dlg:entry{
     id = "filename",
