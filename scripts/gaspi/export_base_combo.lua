@@ -97,6 +97,7 @@ local saved_vis = HideLayers(Sprite)
 
 local exported = 0
 local ignored_groups = 0
+local ignored_group_names = {}
 local fmt = dlg.data.format
 
 -- Build filename-safe string
@@ -128,9 +129,10 @@ for _, info in ipairs(combo_ids) do
     local g = info.group
     local sel = dlg.data[info.id]
 
-    -- If user selected 'None' -> ignore this group and count it
+    -- If user selected 'None' -> ignore this group and record its name
     if not sel or sel == "None" then
         ignored_groups = ignored_groups + 1
+        table.insert(ignored_group_names, g.name)
         goto continue_group
     end
 
@@ -139,14 +141,26 @@ for _, info in ipairs(combo_ids) do
     for _, child in ipairs(g.layers) do
         if child.name == sel then base = child; break end
     end
-    if not base then goto continue_group end
+    if not base then
+        ignored_groups = ignored_groups + 1
+        table.insert(ignored_group_names, g.name)
+        goto continue_group
+    end
 
     -- if base is empty and user wants to ignore empty layers, skip this group
-    if dlg.data.ignore_empty and layerIsEmpty(base) then goto continue_group end
+    if dlg.data.ignore_empty and layerIsEmpty(base) then
+        ignored_groups = ignored_groups + 1
+        table.insert(ignored_group_names, g.name)
+        goto continue_group
+    end
 
     -- if exclude is enabled and base has exclude prefix -> skip this group (don't count as None)
     local exclude_prefix = dlg.data.exclude_prefix or "_"
-    if dlg.data.exclude and hasPrefix(base.name, exclude_prefix) then goto continue_group end
+    if dlg.data.exclude and hasPrefix(base.name, exclude_prefix) then
+        ignored_groups = ignored_groups + 1
+        table.insert(ignored_group_names, g.name)
+        goto continue_group
+    end
 
     -- for each other child in group that is not the base (skip nested groups)
     for _, target in ipairs(g.layers) do
@@ -200,6 +214,13 @@ Sprite:resize(Sprite.width / dlg.data.scale, Sprite.height / dlg.data.scale)
 
 if dlg.data.save then Sprite:saveAs(dlg.data.directory) end
 
-local dlg2 = MsgDialog("Done", "Exported " .. exported .. " images. Ignored " .. ignored_groups .. " group, no base layer selected.")
-dlg2:show()
+if ignored_groups == 0 then
+    MsgDialog("Done", "Exported " .. exported .. " images."):show()
+else
+    local _h_msg = "Exported " .. exported .. " images."
+    local _msg1 = "Groups ignored(no base layer selected):"
+    local _msg2 = "    " .. table.concat(ignored_group_names, " - ") .. "."
+    CompleteMsg("Done", _h_msg, _msg1, _msg2):show()
+end
+
 return 0

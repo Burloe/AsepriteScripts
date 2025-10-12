@@ -43,10 +43,12 @@ function HideLayers(sprite)
    local data = {} -- Save visibility status of each layer here.
    for i,layer in ipairs(sprite.layers) do
       if layer.isGroup then
-         -- Recursive for groups.
-         data[i] = HideLayers(layer)
+         -- Save group's own visibility and recurse for children.
+         data[i] = { isGroup = true, visible = layer.isVisible, children = HideLayers(layer) }
+         -- Hide the group (and its children will be hidden by recursion)
+         layer.isVisible = false
       else
-         data[i] = layer.isVisible
+         data[i] = { isGroup = false, visible = layer.isVisible }
          layer.isVisible = false
       end
    end
@@ -57,10 +59,15 @@ end
 function RestoreLayersVisibility(sprite, data)
    for i,layer in ipairs(sprite.layers) do
       if layer.isGroup then
-         -- Recursive for groups.
-         RestoreLayersVisibility(layer, data[i])
+         -- Restore group's visibility, then recurse for its children.
+         if data[i] then
+            layer.isVisible = data[i].visible
+            RestoreLayersVisibility(layer, data[i].children)
+         end
       else
-         layer.isVisible = data[i]
+         if data[i] then
+            layer.isVisible = data[i].visible
+         end
       end
    end
 end
@@ -74,6 +81,27 @@ function MsgDialog(title, msg)
    }
    dlg:newrow()
    dlg:button{id = "close", text = "Close", onclick = function() dlg:close() end }
+   return dlg
+end
+
+function CompleteMsg(title, msg_header, msg1, msg2)
+   local dlg = Dialog(title)
+   dlg:label{
+      id = "msg_h",
+      text = msg_header
+   }
+   dlg:newrow()
+   dlg:label{
+      id = "msg_1",
+      text = msg1
+   }
+   dlg:newrow()
+   dlg:label{
+      id = "msg_2",
+      text = msg2
+   }
+   dlg:newrow()
+   dlg:button{id = "close", text = "Close", onclick = function() dlg:close() end}
    return dlg
 end
 
