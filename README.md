@@ -14,9 +14,8 @@ Customized version for my project in `scripts/burloe`.
         - `_` exclusion prefix.<br>
         
 ### Export Base Combination **[New]** 
-*Example, if you have a letter sprite and different text/sprites you want on top. You select the `letter` as the base, then the script will export every other layer in the group with the letter under it*:
-<img width="901" height="577" alt="asdf" src="https://github.com/user-attachments/assets/4046a07d-414e-4569-a23b-4cbc8c469ff0" /> <br>
-
+*Exports each layer in a group with a selected base layer.*
+<img width="901" height="577" alt="asdasd" src="https://github.com/user-attachments/assets/2f6de74c-eac6-460c-b786-85782a5b6985" /><br>
 
 
             
