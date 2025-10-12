@@ -18,6 +18,14 @@ if #groups == 0 then
     return 0
 end
 
+-- Reverse table in-place so groups iterate in the opposite order
+local function reverseTable(t)
+    for i = 1, math.floor(#t / 2) do
+        t[i], t[#t - i + 1] = t[#t - i + 1], t[i]
+    end
+end
+reverseTable(groups)
+
 -- Build dialog
 local dlg = Dialog("Export with base layers")
 dlg:file{
@@ -46,8 +54,14 @@ dlg:check{
     label = "Exclude layers",
     selected = false,
     onclick = function()
+        dlg:modify{ id = "prefix_info", visible = dlg.data.exclude }
         dlg:modify{ id = "exclude_prefix", visible = dlg.data.exclude }
     end
+}
+dlg:label{
+    id = "prefix_info",
+    text = "Layers named with prefix are excluded when exporting.",
+    visible = false
 }
 dlg:entry{
     id = "exclude_prefix",
@@ -63,7 +77,7 @@ dlg:label{ id = "base_label", text = "Choose Base Layer" }
 -- For each group add a combobox of its immediate children (non-group and group layers)
 local combo_ids = {}
 for i, g in ipairs(groups) do
-    local options = {"None"}
+    local options = {"None - Ignored"}
     for _, child in ipairs(g.layers) do
         table.insert(options, child.name)
     end
