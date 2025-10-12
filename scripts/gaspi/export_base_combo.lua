@@ -39,6 +39,23 @@ dlg:combobox{
 }
 dlg:slider{id = "scale", label = "Scale:", min = 1, max = 10, value = 1}
 dlg:check{id = "save", label = "Save Sprite", selected = false}
+
+-- Exclude layers option + prefix entry (entry hidden initially)
+dlg:check{
+    id = "exclude",
+    label = "Exclude layers",
+    selected = false,
+    onclick = function()
+        dlg:modify{ id = "exclude_prefix", visible = dlg.data.exclude }
+    end
+}
+dlg:entry{
+    id = "exclude_prefix",
+    label = "Exclude prefix:",
+    text = "_",
+    visible = false
+}
+
 dlg:check{id = "ignore_empty", label = "Ignore empty layers", selected = true}
 dlg:separator{}
 dlg:label{ id = "base_label", text = "Choose Base Layer" }
@@ -79,6 +96,7 @@ Sprite:resize(Sprite.width * dlg.data.scale, Sprite.height * dlg.data.scale)
 local saved_vis = HideLayers(Sprite)
 
 local exported = 0
+local ignored_groups = 0
 local fmt = dlg.data.format
 
 -- Build filename-safe string
@@ -101,55 +119,78 @@ local function layerIsEmpty(layer)
     return true
 end
 
+local function hasPrefix(name, prefix)
+    if not prefix or prefix == "" then return false end
+    return string.sub(name, 1, #prefix) == prefix
+end
+
 for _, info in ipairs(combo_ids) do
     local g = info.group
     local sel = dlg.data[info.id]
-    if sel and sel ~= "None" then
-        -- find base layer object in group
-        local base = nil
-        for _, child in ipairs(g.layers) do
-            if child.name == sel then base = child; break end
-        end
-        if not base then goto continue_group end
 
-        -- if base is empty and user wants to ignore empty layers, skip this group
-        if dlg.data.ignore_empty and layerIsEmpty(base) then goto continue_group end
-
-        -- for each other child in group that is not the base (skip nested groups)
-        for _, target in ipairs(g.layers) do
-            if target ~= base and not target.isGroup then
-                if dlg.data.ignore_empty and layerIsEmpty(target) then goto continue_target end
-
-                -- hide everything in group first
-                for _, ch in ipairs(g.layers) do ch.isVisible = false end
-
-                base.isVisible = true
-                target.isVisible = true
-
-                -- ensure output dir exists and build filename from format
-                local fmt_pattern = dlg.data.out_filename or "{groupname}_{layername}"
-                local name_body = fmt_pattern
-                    :gsub("{groupname}", g.name)
-                    :gsub("{group}", g.name)
-                    :gsub("{baselayer}", base.name)
-                    :gsub("{base}", base.name)
-                    :gsub("{layername}", target.name)
-                    :gsub("{target}", target.name)
-
-                local fname = output_path .. "/" .. safeName(name_body) .. "." .. fmt
-                os.execute('mkdir "' .. Dirname(fname) .. '"')
-
-                -- save copy
-                Sprite:saveCopyAs(fname)
-                exported = exported + 1
-
-                -- restore those two to hidden (we'll set vis next loop)
-                base.isVisible = false
-                target.isVisible = false
-            end
-            ::continue_target::
-        end
+    -- If user selected 'None' -> ignore this group and count it
+    if not sel or sel == "None" then
+        ignored_groups = ignored_groups + 1
+        goto continue_group
     end
+
+    -- find base layer object in group
+    local base = nil
+    for _, child in ipairs(g.layers) do
+        if child.name == sel then base = child; break end
+    end
+    if not base then goto continue_group end
+
+    -- if base is empty and user wants to ignore empty layers, skip this group
+    if dlg.data.ignore_empty and layerIsEmpty(base) then goto continue_group end
+
+    -- if exclude is enabled and base has exclude prefix -> skip this group (don't count as None)
+    local exclude_prefix = dlg.data.exclude_prefix or "_"
+    if dlg.data.exclude and hasPrefix(base.name, exclude_prefix) then goto continue_group end
+
+    -- for each other child in group that is not the base (skip nested groups)
+    for _, target in ipairs(g.layers) do
+        if target ~= base and not target.isGroup then
+            -- skip excluded targets
+            if dlg.data.exclude and hasPrefix(target.name, exclude_prefix) then goto continue_target end
+
+            if dlg.data.ignore_empty and layerIsEmpty(target) then goto continue_target end
+
+            -- hide everything in group first
+            for _, ch in ipairs(g.layers) do ch.isVisible = false end
+
+            -- make sure the parent group is visible (otherwise children remain hidden)
+            g.isVisible = true
+
+            base.isVisible = true
+            target.isVisible = true
+
+            -- ensure output dir exists and build filename from format
+            local fmt_pattern = dlg.data.out_filename or "{groupname}_{layername}"
+            local name_body = fmt_pattern
+                :gsub("{groupname}", g.name)
+                :gsub("{group}", g.name)
+                :gsub("{baselayer}", base.name)
+                :gsub("{base}", base.name)
+                :gsub("{layername}", target.name)
+                :gsub("{target}", target.name)
+
+            local fname = output_path .. "/" .. safeName(name_body) .. "." .. fmt
+            os.execute('mkdir "' .. Dirname(fname) .. '"')
+
+            -- save copy
+            Sprite:saveCopyAs(fname)
+            exported = exported + 1
+
+            -- restore those two to hidden (we'll set vis next loop)
+            base.isVisible = false
+            target.isVisible = false
+            -- hide the group again so subsequent exports start from the same state
+            g.isVisible = false
+        end
+        ::continue_target::
+    end
+
     ::continue_group::
 end
 
@@ -159,6 +200,6 @@ Sprite:resize(Sprite.width / dlg.data.scale, Sprite.height / dlg.data.scale)
 
 if dlg.data.save then Sprite:saveAs(dlg.data.directory) end
 
-local dlg2 = MsgDialog("Done", "Exported " .. exported .. " images.")
+local dlg2 = MsgDialog("Done", "Exported " .. exported .. " images. Ignored " .. ignored_groups .. " group, no base layer selected.")
 dlg2:show()
 return 0
