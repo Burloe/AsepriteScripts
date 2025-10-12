@@ -1,4 +1,15 @@
-# Personalized version of the script for my projects - Burloe
+# Burloe - Personalized version of the script for my projects
+Additions:<br>
+    - Exclusion Prefix - Does not export layers with a designated prefix as layer name. [Added as public PR]<br>
+    - Space as Group Seperator - Allows Space to be used as group seperator.<br>
+    - Settings Presets - Combobox with preset for specific files:<br>
+        - ToolSprites: <br>
+            - Uses reversed layername and layergroup as filename.<br>
+            - Space as group seperator.<br>
+            - Export as Spritesheet turned off.<br>
+            - '_' exclusion prefix.<br>
+            - New script that combines a base layer with the rest of the layers in a groupmj
+            
 
 # Gaspi's Aseprite Scripts
 
