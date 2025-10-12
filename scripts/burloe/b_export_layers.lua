@@ -155,104 +155,35 @@ local function exportLayers(sprite, root_layer, filename, group_sep, data)
     end
 end
 
--- Exports every layer individually using preset settings.
-local function exportWithPreset(sprite, root_layer, preset, filename, group_sep, data)
-    for _, layer in ipairs(root_layer.layers) do
-        local prefix = data.exclusion_prefix or "_"
-        -- Skip layer with specified prefix and prefix is not empty
-        if data.exclude_prefix and prefix ~= "" and string.sub(layer.name, 1, #prefix) == prefix then
-            goto continue
-        end
 
-        local fname = filename
-        if layer.isGroup then
-            -- Recursive for groups.
-            local previousVisibility = layer.isVisible
-            layer.isVisible = true
-            fname = fname:gsub("{layergroups}", layer.name .. group_sep .. "{layergroups}")
-            -- recurse with the same preset and data
-            exportWithPreset(sprite, layer, preset, fname, group_sep, data)
-            layer.isVisible = previousVisibility
-        else
-            -- Individual layer. Export it.
-            layer.isVisible = true
-            fname = fname:gsub("{layergroups}", "")
-            fname = fname:gsub("{layername}", layer.name)
-            fname = removeSepBeforeExtension(fname, group_sep)
-            os.execute("mkdir \"" .. Dirname(fname) .. "\"")
-
-            if data.spritesheet then
-                local sheettype = SpriteSheetType.HORIZONTAL
-                if (data.tagsplit == "To Rows") then
-                    sheettype = SpriteSheetType.ROWS
-                elseif (data.tagsplit == "To Columns") then
-                    sheettype = SpriteSheetType.COLUMNS
-                end
-                app.command.ExportSpriteSheet{
-                    ui=false,
-                    askOverwrite=false,
-                    type=sheettype,
-                    columns=0,
-                    rows=0,
-                    width=0,
-                    height=0,
-                    bestFit=false,
-                    textureFilename=fname,
-                    dataFilename="",
-                    dataFormat=SpriteSheetDataFormat.JSON_HASH,
-                    borderPadding=0,
-                    shapePadding=0,
-                    innerPadding=0,
-                    trimSprite=data.trimSprite,
-                    trim=data.trimCells,
-                    trimByGrid=data.trimByGrid,
-                    mergeDuplicates=data.mergeDuplicates,
-                    extrude=false,
-                    openGenerated=false,
-                    layer="",
-                    tag="",
-                    splitLayers=false,
-                    splitTags=(data.tagsplit ~= "No"),
-                    listLayers=layer,
-                    listTags=true,
-                    listSlices=true,
-                }
-            elseif data.trim then -- Trim the layer
-                local boundingRect = calculateBoundingBox(layer)
-                if not boundingRect then
-                    -- nothing to export for this layer
-                    layer.isVisible = false
-                    goto continue
-                end
-
-                -- make a selection on the active layer
-                app.activeLayer = layer
-                sprite.selection = Selection(boundingRect)
-
-                -- create a new sprite from that selection
-                app.command.NewSpriteFromSelection()
-
-                -- save it as png
-                app.command.SaveFile {
-                    ui=false,
-                    filename=fname
-                }
-                app.command.CloseFile()
-
-                app.activeSprite = layer.sprite  -- restore active sprite context
-                sprite.selection = Selection()
-            else
-                sprite:saveCopyAs(fname)
-            end
-
-            layer.isVisible = false
-            n_layers = n_layers + 1
-        end
-        ::continue::
+-- Helper: apply a map of modifications to the dialog
+local function applyPresetMods(dialog, mods)
+    for id, props in pairs(mods) do
+        local t = { id = id }
+        for k, v in pairs(props) do t[k] = v end
+        dialog:modify(t)
     end
 end
 
+-- Helper: shallow-copy a table
+local function shallowCopy(t)
+    local c = {}
+    for k,v in pairs(t) do c[k] = v end
+    return c
+end
 
+-- Common defaults used by many presets
+local commonPreset = {
+    filename = { text = "{layername}" },
+    format = { option = "png" },
+    group_sep = { option = " " },
+    scale = { value = 1 },
+    spritesheet = { selected = false },
+    trim = { selected = false },
+    exclude_prefix = { selected = true },
+    exclusion_prefix = { text = "_", visible = true },
+    save = { selected = false },
+}
 
 -- Open main dialog.
 local dlg = Dialog("Export layers")
@@ -373,154 +304,66 @@ dlg:entry{ -- Visible if 'exclude_prefix' is selected
     text = "_",
     visible = true
 }
-dlg.separator{}
+dlg:separator{}
 dlg:combobox{
     id = "presets",
     label = 'Presets',
     option = 'None',
-    options = { 'None', 'Tools', 'Armors', 'Weapons', 'Crops', 'Seeds', 'Workbenches', 'Buildables', 'Materials', 'Consumables', 'Keys', 'Collectibles', 'Fish' },
+    options = { 'None', 'Armors', 'Buildables', 'Crops', 'Collectibles', 'Consumables', 'Fish', 'Keys', 'Materials', 'Seeds', 'Tools', 'Weapons', 'Workbenches' },
     onchange = function()
         local p = dlg.data.presets
-        if p == "Tools" then
-            dlg.modify{ id = "directory", filename = "C:\\users\\Tomni\\OneDrive\\1. Godot\\eldergrowth\\Assets\\Items\\item_Icons\\tools" }
-            dlg.modify{ id = "filename", "{layername}{layername}" }
-            dlg.modify{ id = "format", option = "png" }
-            dlg.modify{ id = "group_sep", option = " " }
-            dlg.modify{ id = "scale", value = 1 }
-            dlg.modify{ id = "spritesheet", selected = false }
-            dlg.modify{ id = "trim", selected = false }
-            dlg.modify{ id = "exclude_prefix", selected = true }
-            dlg.modify{ id = "exclusion_prefix", text = "_", visible = true }
-            dlg.modify{ id = "save", selected = true }
-            
-        elseif p == "Armors" then
-            dlg.modify{ id = "directory", filename = "C:\\users\\Tomni\\OneDrive\\1. Godot\\eldergrowth\\Assets\\Items\\item_Icons\\armors" }
-            dlg.modify{ id = "filename", "{layername}" }
-            dlg.modify{ id = "format", option = "png" }
-            dlg.modify{ id = "group_sep", option = " " }
-            dlg.modify{ id = "scale", value = 1 }
-            dlg.modify{ id = "spritesheet", selected = false }
-            dlg.modify{ id = "trim", selected = false }
-            dlg.modify{ id = "exclude_prefix", selected = true }
-            dlg.modify{ id = "exclusion_prefix", text = "_", visible = true }
-            dlg.modify{ id = "save", selected = true }
-        elseif p == "Weapons" then
-            dlg.modify{ id = "directory", filename = "C:\\users\\Tomni\\OneDrive\\1. Godot\\eldergrowth\\Assets\\Items\\item_Icons\\weapons" }
-            dlg.modify{ id = "filename", "{layername}{layername}" }
-            dlg.modify{ id = "format", option = "png" }
-            dlg.modify{ id = "group_sep", option = " " }
-            dlg.modify{ id = "scale", value = 1 }
-            dlg.modify{ id = "spritesheet", selected = false }
-            dlg.modify{ id = "trim", selected = false }
-            dlg.modify{ id = "exclude_prefix", selected = true }
-            dlg.modify{ id = "exclusion_prefix", text = "_", visible = true }
-            dlg.modify{ id = "save", selected = true }
-        elseif p == "Crops" then
-            dlg.modify{ id = "directory", filename = "C:\\users\\Tomni\\OneDrive\\1. Godot\\eldergrowth\\Assets\\Items\\item_Icons\\crops" }
-            dlg.modify{ id = "filename", "{layername}{layername}" }
-            dlg.modify{ id = "format", option = "png" }
-            dlg.modify{ id = "group_sep", option = " " }
-            dlg.modify{ id = "scale", value = 1 }
-            dlg.modify{ id = "spritesheet", selected = false }
-            dlg.modify{ id = "trim", selected = false }
-            dlg.modify{ id = "exclude_prefix", selected = true }
-            dlg.modify{ id = "exclusion_prefix", text = "_", visible = true }
-            dlg.modify{ id = "save", selected = true }
-        elseif p == "Seeds" then
-            dlg.modify{ id = "directory", filename = "C:\\users\\Tomni\\OneDrive\\1. Godot\\eldergrowth\\Assets\\Items\\item_Icons\\seeds" }
-            dlg.modify{ id = "filename", "{layername}{layername}" }
-            dlg.modify{ id = "format", option = "png" }
-            dlg.modify{ id = "group_sep", option = " " }
-            dlg.modify{ id = "scale", value = 1 }
-            dlg.modify{ id = "spritesheet", selected = false }
-            dlg.modify{ id = "trim", selected = false }
-            dlg.modify{ id = "exclude_prefix", selected = true }
-            dlg.modify{ id = "exclusion_prefix", text = "_", visible = true }
-            dlg.modify{ id = "save", selected = true }
-        elseif p == "Workbenches" then
-            dlg.modify{ id = "directory", filename = "C:\\users\\Tomni\\OneDrive\\1. Godot\\eldergrowth\\Assets\\Items\\item_Icons\\workbenches" }
-            dlg.modify{ id = "filename", "{layername}{layername}" }
-            dlg.modify{ id = "format", option = "png" }
-            dlg.modify{ id = "group_sep", option = " " }
-            dlg.modify{ id = "scale", value = 1 }
-            dlg.modify{ id = "spritesheet", selected = false }
-            dlg.modify{ id = "trim", selected = false }
-            dlg.modify{ id = "exclude_prefix", selected = true }
-            dlg.modify{ id = "exclusion_prefix", text = "_", visible = true }
-            dlg.modify{ id = "save", selected = true }
-        elseif p == "Buildables" then
-            dlg.modify{ id = "directory", filename = "C:\\users\\Tomni\\OneDrive\\1. Godot\\eldergrowth\\Assets\\Items\\item_Icons\\buildables" }
-            dlg.modify{ id = "filename", "{layername}{layername}" }
-            dlg.modify{ id = "format", option = "png" }
-            dlg.modify{ id = "group_sep", option = " " }
-            dlg.modify{ id = "scale", value = 1 }
-            dlg.modify{ id = "spritesheet", selected = false }
-            dlg.modify{ id = "trim", selected = false }
-            dlg.modify{ id = "exclude_prefix", selected = true }
-            dlg.modify{ id = "exclusion_prefix", text = "_", visible = true }
-            dlg.modify{ id = "save", selected = true }
-        elseif p == "Materials" then
-            dlg.modify{ id = "directory", filename = "C:\\users\\Tomni\\OneDrive\\1. Godot\\eldergrowth\\Assets\\Items\\item_Icons\\materials" }
-            dlg.modify{ id = "filename", "{layername}{layername}" }
-            dlg.modify{ id = "format", option = "png" }
-            dlg.modify{ id = "group_sep", option = " " }
-            dlg.modify{ id = "scale", value = 1 }
-            dlg.modify{ id = "spritesheet", selected = false }
-            dlg.modify{ id = "trim", selected = false }
-            dlg.modify{ id = "exclude_prefix", selected = true }
-            dlg.modify{ id = "exclusion_prefix", text = "_", visible = true }
-            dlg.modify{ id = "save", selected = true }
-        elseif p == "Consumables" then
-            dlg.modify{ id = "directory", filename = "C:\\users\\Tomni\\OneDrive\\1. Godot\\eldergrowth\\Assets\\Items\\item_Icons\\consumables" }
-            dlg.modify{ id = "filename", "{layername}{layername}" }
-            dlg.modify{ id = "format", option = "png" }
-            dlg.modify{ id = "group_sep", option = " " }
-            dlg.modify{ id = "scale", value = 1 }
-            dlg.modify{ id = "spritesheet", selected = false }
-            dlg.modify{ id = "trim", selected = false }
-            dlg.modify{ id = "exclude_prefix", selected = true }
-            dlg.modify{ id = "exclusion_prefix", text = "_", visible = true }
-            dlg.modify{ id = "save", selected = true }
-        elseif p == "Keys" then
-            dlg.modify{ id = "directory", filename = "C:\\users\\Tomni\\OneDrive\\1. Godot\\eldergrowth\\Assets\\Items\\item_Icons\\keys" }
-            dlg.modify{ id = "filename", "{layername}{layername}" }
-            dlg.modify{ id = "format", option = "png" }
-            dlg.modify{ id = "group_sep", option = " " }
-            dlg.modify{ id = "scale", value = 1 }
-            dlg.modify{ id = "spritesheet", selected = false }
-            dlg.modify{ id = "trim", selected = false }
-            dlg.modify{ id = "exclude_prefix", selected = true }
-            dlg.modify{ id = "exclusion_prefix", text = "_", visible = true }
-            dlg.modify{ id = "save", selected = true }
-        elseif p == "Collectibles" then
-            dlg.modify{ id = "directory", filename = "C:\\users\\Tomni\\OneDrive\\1. Godot\\eldergrowth\\Assets\\Items\\item_Icons\\collectibles" }
-            dlg.modify{ id = "filename", "{layername}{layername}" }
-            dlg.modify{ id = "format", option = "png" }
-            dlg.modify{ id = "group_sep", option = " " }
-            dlg.modify{ id = "scale", value = 1 }
-            dlg.modify{ id = "spritesheet", selected = false }
-            dlg.modify{ id = "trim", selected = false }
-            dlg.modify{ id = "exclude_prefix", selected = true }
-            dlg.modify{ id = "exclusion_prefix", text = "_", visible = true }
-            dlg.modify{ id = "save", selected = true }
-        elseif p == "Fish" then
-            dlg.modify{ id = "directory", filename = "C:\\users\\Tomni\\OneDrive\\1. Godot\\eldergrowth\\Assets\\Items\\item_Icons\\fish" }
-            dlg.modify{ id = "filename", "{layername}{layername}" }
-            dlg.modify{ id = "format", option = "png" }
-            dlg.modify{ id = "group_sep", option = " " }
-            dlg.modify{ id = "scale", value = 1 }
-            dlg.modify{ id = "spritesheet", selected = false }
-            dlg.modify{ id = "trim", selected = false }
-            dlg.modify{ id = "exclude_prefix", selected = true }
-            dlg.modify{ id = "exclusion_prefix", text = "_", visible = true }
-            dlg.modify{ id = "save", selected = true }
 
-        else
-            -- None
+        if p == 'None' then
+            return
         end
+
+        -- create preset from common defaults
+        local preset = shallowCopy(commonPreset)
+
+        if p == "Tools" then
+            preset.directory = { filename = "C:\\users\\Tomni\\OneDrive\\1. Godot\\eldergrowth\\Assets\\Items\\item_Icons\\tools\\tools" }
+            preset.filename = { text = "{layername} {layergroups}" }
+
+        elseif p == "Armors" then
+            preset.directory = { filename = "C:\\users\\Tomni\\OneDrive\\1. Godot\\eldergrowth\\Assets\\Items\\item_icons\\armors\\armors" }
+
+        elseif p == "Weapons" then
+            preset.directory = { filename = "C:\\users\\Tomni\\OneDrive\\1. Godot\\eldergrowth\\Assets\\Items\\item_icons\\weapons\\weapons" }
+
+        elseif p == "Crops" then
+            preset.directory = { filename = "C:\\users\\Tomni\\OneDrive\\1. Godot\\eldergrowth\\Assets\\Items\\item_icons\\crops\\crops" }
+
+        elseif p == "Seeds" then
+            preset.directory = { filename = "C:\\users\\Tomni\\OneDrive\\1. Godot\\eldergrowth\\Assets\\Items\\item_icons\\seeds\\seeds" }
+            preset.filename = { text = "{layername} Seeds" }
+
+        elseif p == "Workbenches" then
+            preset.directory = { filename = "C:\\users\\Tomni\\OneDrive\\1. Godot\\eldergrowth\\Assets\\Items\\item_icons\\workbenches\\workbenches" }
+
+        elseif p == "Buildables" then
+            preset.directory = { filename = "C:\\users\\Tomni\\OneDrive\\1. Godot\\eldergrowth\\Assets\\Items\\item_icons\\buildables\\buildables" }
+
+        elseif p == "Materials" then
+            preset.directory = { filename = "C:\\users\\Tomni\\OneDrive\\1. Godot\\eldergrowth\\Assets\\Items\\item_icons\\materials\\materials" }
+
+        elseif p == "Consumables" then
+            preset.directory = { filename = "C:\\users\\Tomni\\OneDrive\\1. Godot\\eldergrowth\\Assets\\Items\\item_icons\\consumables\\consumables" }
+
+        elseif p == "Keys" then
+            preset.directory = { filename = "C:\\users\\Tomni\\OneDrive\\1. Godot\\eldergrowth\\Assets\\Items\\item_icons\\keys\\keys" }
+
+        elseif p == "Collectibles" then
+            preset.directory = { filename = "C:\\users\\Tomni\\OneDrive\\1. Godot\\eldergrowth\\Assets\\Items\\item_icons\\collectibles\\collectibles" }
+
+        elseif p == "Fish" then
+            preset.directory = { filename = "C:\\users\\Tomni\\OneDrive\\1. Godot\\eldergrowth\\Assets\\Items\\item_icons\\fish\\fish" }
+        end
+
+        -- apply the composed preset
+        applyPresetMods(dlg, preset)
     end
 }
-dlg.separator{}
+dlg:separator{}
 dlg:check{id = "save", label = "Save sprite:", selected = true}
 dlg:button{id = "ok", text = "Export"}
 dlg:button{id = "cancel", text = "Cancel"}
@@ -538,28 +381,20 @@ if output_path == nil then
     return 1
 end
 
-local group_sep = dlg.data.group_sep
-filename = filename:gsub("{spritename}",
-                         RemoveExtension(Basename(Sprite.filename)))
+-- local group_sep = dlg.data.group_sep
+-- filename = filename:gsub("{spritename}",
+--                          RemoveExtension(Basename(Sprite.filename)))
+-- filename = filename:gsub("{groupseparator}", group_sep)
+local group_sep = dlg.data.group_sep or ""
+local sprite_basename = Sprite.filename and Basename(Sprite.filename) or ""
+local spritename_noext = RemoveExtension(sprite_basename) or ""
+filename = filename:gsub("{spritename}", spritename_noext)
 filename = filename:gsub("{groupseparator}", group_sep)
 
 -- Finally, perform everything.
 Sprite:resize(Sprite.width * dlg.data.scale, Sprite.height * dlg.data.scale)
 local layers_visibility_data = HideLayers(Sprite)
-
--- Preset settings handling.
-if dlg.data.presets == 'None' then
-    exportLayers(Sprite, Sprite, output_path .. filename, group_sep, dlg.data)
-elseif dlg.data.presets == "ToolSprites" then
-    local preset_data = {}
-    for k,v in pairs(dlg.data) do preset_data[k] = v end
-    preset_data.spritesheet = false
-    local preset_filename = output_path .. "{layername} {layergroups}." .. dlg.data.format
-    exportWithPreset(Sprite, Sprite, dlg.data.presets, preset_filename, " ", preset_data)
-else
-    exportLayers(Sprite, Sprite, output_path .. filename, group_sep, dlg.data)
-end
-
+exportLayers(Sprite, Sprite, output_path .. filename, group_sep, dlg.data)
 RestoreLayersVisibility(Sprite, layers_visibility_data)
 Sprite:resize(Sprite.width / dlg.data.scale, Sprite.height / dlg.data.scale)
 
