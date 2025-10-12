@@ -6,12 +6,6 @@ Customized version for my project in `scripts/burloe`.
 ### Export Layers **[Added functionality]**
 - [Exclude layers with prefix](https://github.com/PKGaspi/AsepriteScripts/pull/22) - *Ignores layers with a designated prefix in layer name.*<br>
 - Space as Group Seperator - *Allows `Space` to be used as group seperator.*<br>
-- Settings Presets - *Combobox with preset for item icons:*<br>
-    - ToolSprites: <br>
-        - Uses reversed layername and layergroup as filename.<br>
-        - Space as group seperator.<br>
-        - Export as Spritesheet turned off.<br>
-        - `_` exclusion prefix.<br>
         
 ### Export Base Combination **[New]** 
 *Exports each layer in a group with a selected base layer.*
