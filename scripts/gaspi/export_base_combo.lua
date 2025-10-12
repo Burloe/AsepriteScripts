@@ -26,6 +26,11 @@ dlg:file{
     filename = Sprite.filename,
     open = false
 }
+dlg:entry{
+    id = "out_filename",
+    label = "Output filename format:",
+    text = "{groupname}_{layername}"
+}
 dlg:combobox{
     id = "format",
     label = "Format:",
@@ -34,6 +39,7 @@ dlg:combobox{
 }
 dlg:slider{id = "scale", label = "Scale:", min = 1, max = 10, value = 1}
 dlg:check{id = "save", label = "Save Sprite", selected = false}
+dlg:check{id = "ignore_empty", label = "Ignore empty layers", selected = true}
 dlg:separator{}
 dlg:label{ id = "base_label", text = "Choose Base Layer" }
 
@@ -75,8 +81,25 @@ local saved_vis = HideLayers(Sprite)
 local exported = 0
 local fmt = dlg.data.format
 
--- Helper to build filename-safe string (simple)
+-- Build filename-safe string
 local function safeName(s) return s:gsub("[/\\:%%\"%?%*<>|]", "_") end
+
+-- Return true if a layer has no non-transparent pixels
+local function layerIsEmpty(layer)
+    for _, cel in ipairs(layer.cels) do
+        local img = cel.image
+        if img then
+            for y = 0, img.height - 1 do
+                for x = 0, img.width - 1 do
+                    if img:getPixel(x, y) ~= 0 then
+                        return false
+                    end
+                end
+            end
+        end
+    end
+    return true
+end
 
 for _, info in ipairs(combo_ids) do
     local g = info.group
@@ -89,17 +112,31 @@ for _, info in ipairs(combo_ids) do
         end
         if not base then goto continue_group end
 
+        -- if base is empty and user wants to ignore empty layers, skip this group
+        if dlg.data.ignore_empty and layerIsEmpty(base) then goto continue_group end
+
         -- for each other child in group that is not the base (skip nested groups)
         for _, target in ipairs(g.layers) do
             if target ~= base and not target.isGroup then
+                if dlg.data.ignore_empty and layerIsEmpty(target) then goto continue_target end
+
                 -- hide everything in group first
                 for _, ch in ipairs(g.layers) do ch.isVisible = false end
 
                 base.isVisible = true
                 target.isVisible = true
 
-                -- ensure output dir exists
-                local fname = output_path .. "/" .. safeName(g.name) .. "_" .. safeName(base.name) .. "_" .. safeName(target.name) .. "." .. fmt
+                -- ensure output dir exists and build filename from format
+                local fmt_pattern = dlg.data.out_filename or "{groupname}_{layername}"
+                local name_body = fmt_pattern
+                    :gsub("{groupname}", g.name)
+                    :gsub("{group}", g.name)
+                    :gsub("{baselayer}", base.name)
+                    :gsub("{base}", base.name)
+                    :gsub("{layername}", target.name)
+                    :gsub("{target}", target.name)
+
+                local fname = output_path .. "/" .. safeName(name_body) .. "." .. fmt
                 os.execute('mkdir "' .. Dirname(fname) .. '"')
 
                 -- save copy
@@ -110,6 +147,7 @@ for _, info in ipairs(combo_ids) do
                 base.isVisible = false
                 target.isVisible = false
             end
+            ::continue_target::
         end
     end
     ::continue_group::
