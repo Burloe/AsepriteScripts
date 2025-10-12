@@ -7,12 +7,22 @@ A script to save all different layers in different files.
     * Exclusion Prefix - Does not export layers with a designated prefix as layer name. [Added as public PR]
     * Space as Group Seperator - Allows Space to be used as group seperator.
     * Settings Presets - Combobox with preset for specific files:
-        * ToolSprites: 
-            * Uses reversed layername and layergroup as filename.
-            * Space as group seperator.
-            * Export as Spritesheet turned off.
-            * '_' exclusion prefix.
-        * NYI ItemIcons
+        * Tool: 
+            * Filename format: '{layername} {layergroups}'            
+            * - || -
+        * Seeds:
+            * Filename format: '{layername} Seeds'
+            * - || -
+        * Rest:
+            * Filename format: '{layername}'
+            * Format: png
+            * Group Sep: ' '
+            * Scale: 1
+            * Spritesheet: false
+            * Trim: False
+            * Exclude_prefix: true
+            * Exclusion prefix: '_'
+            * Save: false
 
 Made by Gaspi.
    - Itch.io: https://gaspi.itch.io/

@@ -1,6 +1,14 @@
--- Exports each layer in a group combined with a chosen "base" layer.
--- Usage: For each top-level group, choose one layer as base. The script will
--- save one file per other layer in the same group with both base+layer visible.
+--[[
+Export Base Combination
+
+Description:
+Exports every layer in groups with a selected base layer.
+
+Usage: For each top-level group, choose one layer as base. The script will
+save one file per other layer in the same group with both base+layer visible.
+REQUIRES top-level groups to function.
+-- ]]
+
 
 -- Import main helpers (Dirname, HideLayers, RestoreLayersVisibility, etc.)
 local err = dofile("main.lua")

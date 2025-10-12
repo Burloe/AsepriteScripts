@@ -4,6 +4,10 @@ Export Base Combination
 Description:
 Exports every layer in groups with a selected base layer.
 
+Usage: For each top-level group, choose one layer as base. The script will
+save one file per other layer in the same group with both base+layer visible.
+REQUIRES top-level groups to function.
+
 ? Personal version of Gaspi's original script by Burloe. Specifically tailored for my personal projects. Added functionality:
     * Settings Presets - Combobox with preset for specific files:
         * Seeds: 
