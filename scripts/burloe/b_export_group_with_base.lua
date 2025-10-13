@@ -45,7 +45,7 @@ end
 reverseTable(groups)
 
 -- Build dialog
-local dlg = Dialog("Export with base layers")
+local dlg = Dialog("Export Group with Base Layer")
 dlg:file{
     id = "directory",
     label = "Output directory:",

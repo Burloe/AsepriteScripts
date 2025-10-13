@@ -9,10 +9,10 @@ A script to save all different layers in different files.
     * Settings Presets - Combobox with preset for specific files:
         * Tool: 
             * Filename format: '{layername} {layergroups}'            
-            * - || -
+            * -- || --
         * Seeds:
             * Filename format: '{layername} Seeds'
-            * - || -
+            * -- || --
         * Rest:
             * Filename format: '{layername}'
             * Format: png
@@ -164,7 +164,6 @@ local function exportLayers(sprite, root_layer, filename, group_sep, data)
         ::continue::
     end
 end
-
 
 -- Helper: apply a map of modifications to the dialog
 local function applyPresetMods(dialog, mods)
