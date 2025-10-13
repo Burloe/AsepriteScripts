@@ -7,12 +7,12 @@ but if you do, use the agnostic versions of the scripts as my personal<br>
 ones are customized for my use, filepaths, sprite/group/layer structures.*<br>
 
 ### Export Layers **[Added functionality]**
-- [Exclude layers with prefix](https://github.com/PKGaspi/AsepriteScripts/pull/22) - *Layers with a designated prefix (`_` by default) in layer name.*<br>
+- [Exclude layers with prefix](https://github.com/PKGaspi/AsepriteScripts/pull/22) - *Layers with a designated prefix (`_` by default) in layer name are ignored.*<br>
 - Space as Group Seperator - *Allows `Space` to be used as group seperator. **USE WITH CAUTION!***<br>
         
 ### Export Group with Base **[New]** 
 *Exports each layer in a group with a selected base layer.*
-<img width="901" height="577" alt="asdasd" src="https://github.com/user-attachments/assets/2f6de74c-eac6-460c-b786-85782a5b6985" /><br>
+<img width="776" height="594" alt="Diagram" src="https://github.com/user-attachments/assets/0260278a-aedc-43a9-b3f6-171021c0812f" /> <br><br>
 
 
             
