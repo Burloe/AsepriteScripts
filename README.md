@@ -1,4 +1,4 @@
-# Burloe - Personalized version of the script for my projects
+# Burloe - Personalized version of the script collection for my projects
 Forked from [PKGaspi - AsepriteScripts](https://github.com/PKGaspi/AsepriteScripts)<br>
 Agnostic version of the scripts are in `scripts/gaspi`.<br>
 Customized version for my project in `scripts/burloe`.<br>
