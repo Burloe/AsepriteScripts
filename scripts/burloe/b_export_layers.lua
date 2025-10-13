@@ -81,10 +81,17 @@ end
 local function exportLayers(sprite, root_layer, filename, group_sep, data)
     for _, layer in ipairs(root_layer.layers) do
         local prefix = data.exclusion_prefix or "_"
+
+        -- Ignore Aseprite "Reference" layers (if the API exposes isReference)
+        if layer.isReference then
+            goto continue
+       end
+
         -- Skip layer with specified prefix and prefix is not empty
         if data.exclude_prefix and prefix ~= "" and string.sub(layer.name, 1, #prefix) == prefix then
             goto continue
         end
+        
         local filename = filename
         if layer.isGroup then
             -- Recursive for groups.
