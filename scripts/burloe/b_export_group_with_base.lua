@@ -113,7 +113,7 @@ dlg:combobox{
     onchange = function()
         local p = dlg.data.presets
         if p == "Seeds" then
-            dlg:modify{ id = "directory", filename = "C:\\users\\Tomni\\OneDrive\\1. Godot\\eldergrowth\\Assets\\Items\\item_Icons\\seeds" }
+            dlg:modify{ id = "directory", filename = "C:\\users\\Tomni\\OneDrive\\1. Godot\\eldergrowth\\Assets\\Items\\item_Icons\\seeds\\seeds" }
             dlg:modify{ id = "out_filename", text = "{layername} Seeds" }
             dlg:modify{ id = "format", option = "png" }
             dlg:modify{ id = "scale", value = 1 }
@@ -122,7 +122,7 @@ dlg:combobox{
             dlg:modify{ id = "exclude_prefix", visible = true, text = "_" }
             dlg:modify{ id = "ignore_empty", selected = true }
         elseif p == "Crops" then
-            dlg:modify{ id = "directory", filename = "C:\\users\\Tomni\\OneDrive\\1. Godot\\eldergrowth\\Assets\\Items\\item_Icons\\crops" }
+            dlg:modify{ id = "directory", filename = "C:\\users\\Tomni\\OneDrive\\1. Godot\\eldergrowth\\Assets\\Items\\item_Icons\\crops\\crops" }
             dlg:modify{ id = "out_filename", text = "{layername}" }
             dlg:modify{ id = "format", option = "png" }
             dlg:modify{ id = "scale", value = 1 }
