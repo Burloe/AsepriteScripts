@@ -1,4 +1,4 @@
-# Burloe - Personalized version of the script for my projects
+# Burloe - Personalized version of the script collection for my projects
 Forked from [PKGaspi - AsepriteScripts](https://github.com/PKGaspi/AsepriteScripts)<br>
 Agnostic version of the scripts are in `scripts/gaspi`.<br>
 Customized version for my project in `scripts/burloe`.<br>
@@ -8,6 +8,7 @@ ones are customized for my use, filepaths, sprite/group/layer structures.*<br>
 
 ### Export Layers **[Added functionality]**
 - [Exclude layers with prefix](https://github.com/PKGaspi/AsepriteScripts/pull/22) - *Layers with a designated prefix (`_` by default) in layer name are ignored.*<br>
+- [Ignores reference layers when exporting layers.](https://github.com/PKGaspi/AsepriteScripts/pull/25) - *Previously, reference layers were exported as empty images.*
 - Space as Group Seperator - *Allows `Space` to be used as group seperator. **USE WITH CAUTION!***<br>
         
 ### Export Group with Base **[New]** 
