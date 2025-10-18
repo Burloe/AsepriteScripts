@@ -14,7 +14,7 @@ ones are customized for my use, filepaths, sprite/group/layer structures.*<br>
 ### Export Group with Base **[New]** 
 *Exports each layer in a group with a selected base layer.*
 <img width="776" height="594" alt="Diagram" src="https://github.com/user-attachments/assets/0260278a-aedc-43a9-b3f6-171021c0812f" /> <br><br>
-
+*Note that the base layer will need to be ordered correctly in the group, just like any usual export operation.*
 
             
 
