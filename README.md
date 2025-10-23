@@ -2,13 +2,14 @@
 Forked from [PKGaspi - AsepriteScripts](https://github.com/PKGaspi/AsepriteScripts)<br>
 Agnostic version of the scripts are in `scripts/gaspi`.<br>
 Customized version for my project in `scripts/burloe`.<br>
-*This repo is for my personal use and I don't expect anyone to use them<br>
-but if you do, use the agnostic versions of the scripts as my personal<br> 
-ones are customized for my use, filepaths, sprite/group/layer structures.*<br>
+
+*This repo is for my personal use and I don't expect anyone to use any of the<br>
+scripts, but if anyone were to. Use the agnostic versions of the scripts as my personal<br> 
+scripts are highly customized for my use, filepaths, sprite/group/layer structures.*<br>
 
 ### Export Layers **[Added functionality]**
-- [**Merged** - Exclude layers with prefix](https://github.com/PKGaspi/AsepriteScripts/pull/22) - *Layers with a designated prefix (`_` by default) in layer name are ignored.*<br>
-- [**Merged** - Ignores reference layers when exporting layers.](https://github.com/PKGaspi/AsepriteScripts/pull/25) - *Previously, reference layers were exported as empty images.*
+- [**Merged into Main** - Exclude layers with prefix](https://github.com/PKGaspi/AsepriteScripts/pull/22) - *Layers with a designated prefix (`_` by default) in layer name are ignored.*<br>
+- [**Merged into Main** - Ignores reference layers when exporting layers.](https://github.com/PKGaspi/AsepriteScripts/pull/25) - *Previously, reference layers were exported as empty images.*
 - Space as Group Seperator - *Allows `Space` to be used as group seperator. **USE WITH CAUTION!***<br>
         
 ### Export Group with Base **[New]** 
