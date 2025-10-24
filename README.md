@@ -13,7 +13,8 @@ scripts are highly customized for my use, filepaths, sprite/group/layer structur
 - Space as Group Seperator - *Allows `Space` to be used as group seperator. **USE WITH CAUTION!***<br>
         
 ### Export Group with Base **[New]** 
-*Exports each layer in a group with a selected base layer.*
+Exports each layer in a group with a selected base layer.
+- *Requires layer groups to be used. A group needs the base layer to exist inside it for the script to detect it.*
 <img width="776" height="594" alt="Diagram" src="https://github.com/user-attachments/assets/0260278a-aedc-43a9-b3f6-171021c0812f" /> <br><br>
 *Note that the base layer will need to be ordered correctly in the group, just like any usual export operation.*
 
